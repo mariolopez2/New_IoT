@@ -98,7 +98,7 @@ def subirFotos():
 	disp.image(image) 
 	disp.display()
 	os.system("gphoto2 --get-all-files")
-	os.system("mv *!(iot.py) Fotos_IOT/")
+	os.system("mv !(iot.py) Fotos_IOT/")
 
 def Iniciar():
 	#Limpiar consola
