@@ -92,6 +92,7 @@ def printd(mensaje,y):
 
 def subirFotos():
 	os.system("gphoto2 --get-all-files --filename /home/pi/Fotos_IOT/")
+
 def Iniciar():
 	#Limpiar consola
 	os.system('clear')
@@ -111,13 +112,15 @@ def Iniciar():
 			# Validar que la camara este conectada y haya salida a internet.
 			# POSIBLE integración de BD para guardar registro.
 			if camara_estado == "Conectada" and conexion_estado == "Conectado":
+				print("Puede iniciar el proceso de subida de fotografias")
 				printd("PUEDE INICIAR",48)
 				printd("EL PROCESO",56)
 				led.on()
 				if button.is_pressed:
 					disp.clear()
+					print("SUBIENDO FOTOS")
 					printd("SUBIENDO ARCHIVOS",32)
-					#INICIAR PROCESO DE SUBIDA
+					subirFotos()
 			else:
 				printd("NO DISPONIBLE",40)
 				printd("REVISE QUE LA CAMARA",48)
