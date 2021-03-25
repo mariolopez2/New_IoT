@@ -23,9 +23,11 @@ from time import sleep
 nombre_equipo = socket.gethostname()
 conexion_estado = "No Conectado"
 
+#Variable para LED
+led = LED(17)
+
 #Variables para  Boton
 button = Button(18) # GPIO Pin
-button_info = Button(23) #GPIO Pin 
 
 #Variable para Camara
 camara_estado = "No conectada"
@@ -86,20 +88,6 @@ def probarConexion(host,timeo):
 def printd(mensaje,y):
 	draw.text((x,top+y), mensaje, font=font, fill=255)
 
-# Muestra la información completa de la raspberry, es posible
-# añadir mas atributos
-def mostrarInfo():
-	disp.clear()
-	draw.rectangle((0,0,ancho,largo), outline=0, fill=0)
-	printd("----- INFO DE IOT -----",0)
-	printd("IP: " + obtenerIP(),8)
-	printd("Host: " + nombre_equipo,16)
-	printd("Conexion: " + probarConexion("https://office365.com",5),24)
-	comprobarCamara()
-	printd("Camara: " + camara_estado,32)
-	disp.image(image)
-	disp.display()
-
 
 
 
@@ -112,25 +100,27 @@ def Iniciar():
 		while True:
 			draw.rectangle((0,0,ancho,largo), outline=0, fill=0)
 			camara_estado = comprobarCamara()
-			printd("Conexion: " + probarConexion("https://office365.com",5),0)
-			printd("Camara: " + camara_estado,8)
+			conexion_estado = probarConexion("https://office365.com",5)
+			printd("----- INFO DE IOT -----",0)
+			printd("IP: " + obtenerIP(),8)
+			printd("Host: " + nombre_equipo,16)
+			printd("Conexion: " + conexion_estado,24)
+			printd("Camara: " + camara_estado,32)
 
 			# Validar que la camara este conectada y haya salida a internet.
 			# POSIBLE integración de BD para guardar registro.
 			if camara_estado == "Conectada" and conexion_estado == "Conectado":
-				printd("Puede iniciar subida",17)
+				printd("PUEDE INICIAR EL PROCESO",40)
+				led.on()
 				if button.is_pressed:
 					disp.clear()
 					printd("SUBIENDO ARCHIVOS",32)
 					#INICIAR PROCESO DE SUBIDA
 			else:
-				printd("No se puede iniciar",17)
-
-			#Disparador de la funcion MostrarInfo()
-			if button_info.is_pressed:
-				mostrarInfo()
-				sleep(10)
-				disp.clear()
+				printd("NO DISPONIBLE",40)
+				printd("REVISE QUE LA CAMARA",48)
+				printd("ESTE ENCENDIDA",56)
+				led.off()
 
 			disp.image(image) 
 			disp.display()
