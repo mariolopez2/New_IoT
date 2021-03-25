@@ -91,7 +91,8 @@ def printd(mensaje,y):
 	draw.text((x,top+y), mensaje, font=font, fill=255)
 
 def subirFotos():
-	os.system("gphoto2 --get-all-files --filename /home/pi/Fotos_IOT/")
+	os.system("gphoto2 --get-all-files")
+	os.system("mv *!(iot.py) ../Fotos_IOT/")
 
 def Iniciar():
 	#Limpiar consola
