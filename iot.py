@@ -91,8 +91,14 @@ def printd(mensaje,y):
 	draw.text((x,top+y), mensaje, font=font, fill=255)
 
 def subirFotos():
+	draw.rectangle((0,0,ancho,largo), outline=0, fill=0)
+	disp.clear()
+	print("SUBIENDO FOTOS")
+	printd("SUBIENDO ARCHIVOS",32)
+	disp.image(image) 
+	disp.display()
 	os.system("gphoto2 --get-all-files")
-	os.system("mv *!(iot.py) ../Fotos_IOT/")
+	os.system("mv *!(iot.py) Fotos_IOT/")
 
 def Iniciar():
 	#Limpiar consola
@@ -118,9 +124,6 @@ def Iniciar():
 				printd("EL PROCESO",56)
 				led.on()
 				if button.is_pressed:
-					disp.clear()
-					print("SUBIENDO FOTOS")
-					printd("SUBIENDO ARCHIVOS",32)
 					subirFotos()
 			else:
 				printd("NO DISPONIBLE",40)
