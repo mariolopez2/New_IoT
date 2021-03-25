@@ -132,7 +132,7 @@ def Iniciar():
 				sleep(10)
 				disp.clear()
 
-			disp.image(image)
+			disp.image(image) 
 			disp.display()
 			sleep(1)
 	except KeyboardInterrupt:
