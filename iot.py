@@ -16,6 +16,7 @@ import subprocess
 import sys
 
 from gpiozero import Button
+from gpiozero import LED
 from time import sleep
 
 
