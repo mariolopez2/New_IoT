@@ -98,7 +98,7 @@ def subirFotos():
 	disp.image(image) 
 	disp.display()
 	os.system("gphoto2 --get-all-files")
-	subprocess.call("mv !(iot.py) Fotos_IOT/")
+	subprocess.call("mv /home/pi/New_IoT/*!(iot.py) /home/pi/New_IoT/Fotos_IOT/")
 
 def Iniciar():
 	#Limpiar consola
