@@ -1,6 +1,7 @@
 # Copyright (c) 2021 Foxconn GDL PCE Paragons Solutions México
 # Author: Mario Lopez
-# Version: 1.0
+# Version: 1.1
+# Proyecto: https://github.com/mariolopez2/New_IoT 
 
 #Librerias Adafruit para utilizar la pantalla OLED - Más información (https://learn.adafruit.com)
 import Adafruit_GPIO.SPI as SPI
@@ -89,9 +90,8 @@ def probarConexion(host,timeo):
 def printd(mensaje,y):
 	draw.text((x,top+y), mensaje, font=font, fill=255)
 
-
-
-
+def subirFotos():
+	os.system("gphoto2 --get-all-files --filename /home/pi/Fotos_IOT/")
 def Iniciar():
 	#Limpiar consola
 	os.system('clear')
@@ -111,7 +111,8 @@ def Iniciar():
 			# Validar que la camara este conectada y haya salida a internet.
 			# POSIBLE integración de BD para guardar registro.
 			if camara_estado == "Conectada" and conexion_estado == "Conectado":
-				printd("PUEDE INICIAR EL PROCESO",40)
+				printd("PUEDE INICIAR",48)
+				printd("EL PROCESO",56)
 				led.on()
 				if button.is_pressed:
 					disp.clear()
@@ -130,6 +131,8 @@ def Iniciar():
 		print ("Programa terminado por el usuario.")
 		printd("PROGRAMA DETENIDO",32)
 		printd("INTERRUMPIDO",40)
+		disp.image(image) 
+		disp.display()
 		
 		
 def Parar():
