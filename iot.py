@@ -1,6 +1,6 @@
 # Copyright (c) 2021 Foxconn GDL PCE Paragons Solutions México
 # Author: Mario Lopez
-# Version: 1.1
+# Version: 1.3
 # Proyecto: https://github.com/mariolopez2/New_IoT 
 
 #Librerias Adafruit para utilizar la pantalla OLED - Más información (https://learn.adafruit.com)
@@ -15,45 +15,67 @@ import requests
 import os
 import subprocess
 import sys
+import configparser
 
 from gpiozero import Button
 from gpiozero import LED
 from time import sleep
 
+#Archivo de configuración Inicial
+config = configparser.ConfigParser()
+config.read('config.ini')
 
+first_use = config['DEFAULT']['FIRST_USE']
 #Variable para red
 nombre_equipo = socket.gethostname()
-conexion_estado = "No Conectado"
+
 
 #Variable para LED
 led = LED(17)
 
-#Variables para  Boton
+#Variable para  Boton
 button = Button(18) # GPIO Pin
 
-#Variable para Camara
+#Variables de estado
 camara_estado = "No conectada"
+conexion_estado = "No Conectado"
+pantalla_estado = "No conectada"
 
-#Inicializar Pantalla 
+#Parametros de pantalla OLED
 RST = None
 DC = 23
 SPI_PORT = 0
 SPI_DEVICE = 0
-disp = Adafruit_SSD1306.SSD1306_128_64(rst=RST)
-disp.begin() #Inicializar pantalla
-disp.clear() #Limpiar pantalla
-disp.display() #Mostrar pantalla
-ancho = disp.width
-largo = disp.height
-image = Image.new('1', (ancho,largo))
-draw = ImageDraw.Draw(image)
-draw.rectangle((0,0,ancho,largo), outline=0, fill=0)
-padding = -2
-top = padding
-bottom = largo-padding
-x = 0
 font = ImageFont.load_default()	
 
+def IniciarPantallaOled():
+	try:
+		disp = Adafruit_SSD1306.SSD1306_128_64(rst=RST)
+		disp.begin() #Inicializar pantalla
+		disp.clear() #Limpiar pantalla
+		disp.display() #Mostrar pantalla
+		ancho = disp.width
+		largo = disp.height
+		image = Image.new('1', (ancho,largo))
+		draw = ImageDraw.Draw(image)
+		draw.rectangle((0,0,ancho,largo), outline=0, fill=0)
+		padding = -2
+		top = padding
+		bottom = largo-padding
+		x = 0 
+		return "Conectada"
+	except:
+		print("La pantalla no pudo inicializarse, revise la conexión fisica y aseguresé \nque se encuentra conectada")
+		return "No conectada"
+
+def ComprobarSistemas():
+	o365 = config['USER_DEFAULT']['URL_O365']
+	pantalla_estado = IniciarPantallaOled()
+	conexion_estado = probarConexion(str(o365),5)
+	if(pantalla_estado == "Conectada"):
+		#Sistema Autonomo
+	else:
+		#Sistema Web
 
 # Se lee el resultado del comando y retorna el resultado
 def obtenerIP():
