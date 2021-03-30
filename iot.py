@@ -48,6 +48,38 @@ SPI_PORT = 0
 SPI_DEVICE = 0
 font = ImageFont.load_default()	
 
+# Se lee el resultado del comando y retorna el resultado
+def obtenerIP():
+	comando = "ifconfig eth0 | grep -w inet | awk '{print $2}'"
+	return os.popen(comando).read()
+
+# Funcion creada para facilitar escribir en la pantalla OLED
+# mensaje = Texto que se deseas imprimir en la pantalla
+# y = es la posicion en el eje Y (Rango de 0 a 64)
+def printd(mensaje,y):
+	draw.text((x,top+y), mensaje, font=font, fill=255)
+
+# Se valida mediante el comando de auto-detect cuantos dispositivos hay conectados
+# si no existe ningun dispositivo conectado el resultado será 2, si hay 1 o más
+# dispositivos conectados serán 3 o mas.
+def comprobarCamara():
+	conteo = 0
+	os.system('gphoto2 --auto-detect > gphoto2_resultado')
+	conteo = int(os.popen('cat gphoto2_resultado | wc -l').read())
+	if conteo > 2:
+		return "Conectada"
+	else:
+		return "No conectada"
+
+def ComprobarSistemas():
+	o365 = config['USER_DEFAULT']['URL_O365']
+	pantalla_estado = IniciarPantallaOled()
+	conexion_estado = probarConexion(str(o365),5)
+	if(pantalla_estado == "Conectada"):
+		#Sistema Autonomo
+	else:
+
+
 def IniciarPantallaOled():
 	try:
 		disp = Adafruit_SSD1306.SSD1306_128_64(rst=RST)
@@ -68,33 +100,6 @@ def IniciarPantallaOled():
 		print("La pantalla no pudo inicializarse, revise la conexión fisica y aseguresé \nque se encuentra conectada")
 		return "No conectada"
 
-def ComprobarSistemas():
-	o365 = config['USER_DEFAULT']['URL_O365']
-	pantalla_estado = IniciarPantallaOled()
-	conexion_estado = probarConexion(str(o365),5)
-	if(pantalla_estado == "Conectada"):
-		#Sistema Autonomo
-	else:
-		#Sistema Web
-
-# Se lee el resultado del comando y retorna el resultado
-def obtenerIP():
-	comando = "ifconfig eth0 | grep -w inet | awk '{print $2}'"
-	return os.popen(comando).read()
-
-
-# Se valida mediante el comando de auto-detect cuantos dispositivos hay conectados
-# si no existe ningun dispositivo conectado el resultado será 2, si hay 1 o más
-# dispositivos conectados serán 3 o mas.
-def comprobarCamara():
-	conteo = 0
-	os.system('gphoto2 --auto-detect > gphoto2_resultado')
-	conteo = int(os.popen('cat gphoto2_resultado | wc -l').read())
-	if conteo > 2:
-		return "Conectada"
-	else:
-		return "No conectada"
-
 # Revisa conexion hacia el host que se le indique
 # host = se refiere al host al que intentara probar la conexion
 # timeo = es el timeout que tiene antes de dejar de intentarlo
@@ -106,11 +111,54 @@ def probarConexion(host,timeo):
 	else:
 		return "Conectado"
 
-# Funcion creada para facilitar escribir en la pantalla OLED
-# mensaje = Texto que se deseas imprimir en la pantalla
-# y = es la posicion en el eje Y (Rango de 0 a 64)
-def printd(mensaje,y):
-	draw.text((x,top+y), mensaje, font=font, fill=255)
+# Sistema basado en la versión 2.0 del IoT
+def SistemaAutonomo():
+	#Limpiar pantalla
+	disp.clear()
+	try:
+		while True:
+			draw.rectangle(0,0,ancho,largo), outline=0, fill=0)
+			camara_estado = comprobarCamara()
+			conexion_estado = probarConexion(o365,5)
+			printd("---- INFO DE IOT ----",0)
+			printd("IP: " + obtenerIP(),8)
+			printd("Host: " + nombre_equipo,16)
+			printd("Conexion: " + conexion_estado,24)
+			printd("Camara: " + camara_estado,32)
+
+			# Validar que la camara este conectada y haya salida a internet
+			# POSIBLE integración de BD para guardar registro.
+
+			if camara_estado == "Conectada" and conexion_estado == "Conectado":
+				printd("PUEDE INICIAR",48)
+				printd("EL PROCESO",56)
+				led.on()
+				if button.is_pressed:
+					subirFotos()
+			else:
+				printd("NO DISPONIBLE",40)
+				printd("REVISE QUE LA CAMARA",48)
+				printd("ESTE ENCENDIDA",56)
+				led.off()
+
+			disp.image(image)
+			disp.display()
+			sleep(1)
+	except KeyboardInterrupt:
+		disp.clear()
+		printd("Programa detenido",32)
+		printd("Reincie dispositivo",40)
+		disp.image(image)
+		disp.display()
+
+def SistemaWeb():
+
+
+
+
+
+
+
 
 def subirFotos():
 	draw.rectangle((0,0,ancho,largo), outline=0, fill=0)
@@ -123,46 +171,11 @@ def subirFotos():
 	os.system("gphoto2 --get-all-files")
 	os.system(cmd)
 
+
+
+
 def Iniciar():
-	#Limpiar consola
-	os.system('clear')
-	#Limpiar pantalla
-	disp.clear()
-	try:
-		while True:
-			draw.rectangle((0,0,ancho,largo), outline=0, fill=0)
-			camara_estado = comprobarCamara()
-			conexion_estado = probarConexion("https://office365.com",5)
-			printd("----- INFO DE IOT -----",0)
-			printd("IP: " + obtenerIP(),8)
-			printd("Host: " + nombre_equipo,16)
-			printd("Conexion: " + conexion_estado,24)
-			printd("Camara: " + camara_estado,32)
-
-			# Validar que la camara este conectada y haya salida a internet.
-			# POSIBLE integración de BD para guardar registro.
-			if camara_estado == "Conectada" and conexion_estado == "Conectado":
-				print("Puede iniciar el proceso de subida de fotografias")
-				printd("PUEDE INICIAR",48)
-				printd("EL PROCESO",56)
-				led.on()
-				if button.is_pressed:
-					subirFotos()
-			else:
-				printd("NO DISPONIBLE",40)
-				printd("REVISE QUE LA CAMARA",48)
-				printd("ESTE ENCENDIDA",56)
-				led.off()
-
-			disp.image(image) 
-			disp.display()
-			sleep(1)
-	except KeyboardInterrupt:
-		print ("Programa terminado por el usuario.")
-		printd("PROGRAMA DETENIDO",32)
-		printd("INTERRUMPIDO",40)
-		disp.image(image) 
-		disp.display()
+	
 		
 		
 def Parar():

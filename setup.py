@@ -207,7 +207,7 @@ def aplicarCambios(ip,gateway,dns,mask):
             for l in lines:
                 if re.findall('#', l):
                     continue
-                elif re.findall('inform [0-9.]*' l):
+                elif re.findall('inform [0-9.]*', l):
                     newlines.append('inform ' + ip + '/' + mask + '\n')
                 elif re.findall('static routers=', l):
                     newlines.append('static routers=' + gateway + '\n')
