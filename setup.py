@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # Copyright (c) 2021 Foxconn GDL PCE Paragons Solutions México
 # Author: Mario Lopez
-# Version: 1.3
+# Version: 1.5
 # Proyecto: https://github.com/mariolopez2/New_IoT 
 
 import re
@@ -18,6 +18,7 @@ config = configparser.ConfigParser()
 config.read('config.ini')
 
 first_use = bool(config['DEFAULT']['FIRST_USE'])
+second_use = bool(config['DEFAULT']['SECOND_USE'])
 ip = config['DEFAULT']['IPV4']
 gateway = config['DEFAULT']['GATEWAY']
 dns = config['DEFAULT']['DNS']
@@ -103,19 +104,46 @@ def Iniciar():
         mostrarConfig()
         configurar()
     else:
-        respuesta_reconfig = False
-        while(respuesta_reconfig == False):
-            print("YA SE HA CONFIGURADO POR PRIMERA VEZ ESTE DISPOSITIVO")
-            print("\n Deseas volver a configurarlo? (S/N): ")
-            reconf = input()
-            if(reconf == "S" or reconf == "s"):
-                respuesta_reconfig = True
-                configurar()
-            elif(reconf == "N" or reconf == "n"):
-                print("\n SALIENDO DEL PROGRAMA")
-                respuesta_reconfig = True
-            else:
-                print("\nOpcion no valida, intenta de nuevo.")
+        if(second_use == True):
+            configurarArchivos()
+            config.set("DEFAULT","SECOND_USE",str(False))
+        else:
+            respuesta_reconfig = False
+            while(respuesta_reconfig == False):
+                print("YA SE HA CONFIGURADO POR PRIMERA VEZ ESTE DISPOSITIVO")
+                print("\n Deseas volver a configurarlo? (S/N): ")
+                reconf = input()
+                if(reconf == "S" or reconf == "s"):
+                    respuesta_reconfig = True
+                    configurar()
+                elif(reconf == "N" or reconf == "n"):
+                    print("\n SALIENDO DEL PROGRAMA")
+                    respuesta_reconfig = True
+                else:
+                    print("\nOpcion no valida, intenta de nuevo.")
+
+def configurarArchivos():
+    resp_valida = False
+    os.system("sudo systemctl enable ssh")
+    os.system("sudo systemctl start ssh")
+    os.system("sudo mkdir /home/pi/Sharepoint")
+    os.system("sudo mv -rf /home/pi/New_IoT/html/ /var/www/html/")
+    while(resp_valida == False):
+        print("La siguiente configuración necesita de su atención. ¿Desea continuar? S/N: ")
+        resp = input()
+        if(resp == "S" or resp == "s"):
+            resp_valida = True
+            try:
+                os.system("rclone config")
+                print("Hemos terminado de configurar el dispositivo, revisa su correcto funcionamiento.")
+            except:
+                print("No se termino de configurar el dispositivo, revisa su correcto funcionamiento")
+        elif(resp == "N" or resp == "n"):
+            resp_valida = True
+            print("\n Para terminar de configurar el Sharepoint es necesario ejecutar el siguiente comando: rclone config \n Puede consultar mas información en /home/pi/New_IoT/Configurar_Sharepoint.pdf")
+        else:
+            resp_valida = False
+            print("Respuesta no valida\nIntenta de nuevo o presiona Ctrl + c para cancelar.")
 
 
 def configurar():
@@ -178,6 +206,12 @@ def configurar():
             cambiarHostname(new_hostname)
             print("\n\n LOS DATOS HAN SIDO GUARDADOS, EN BREVE EL DISPOSITIVO SE REINICIARA PARA QUE SURGAN EFECTO ESTOS CAMBIOS.")
             resp_valida = True
+            config.set("DEFAULT","FIRST_USE",str(False))
+            config.set("DEFAULT","IPV4",str(new_ip))
+            config.set("DEFAULT","GATEWAY",str(new_gateway))
+            config.set("DEFAULT","DNS",str(new_dns))
+            config.set("DEFAULT","MASK",str(new_mask))
+            config.set("DEFAULT","HOSTNAME",str(new_hostname))
             sleep(10000)
             os.system("sudo reboot")
         elif(respuesta == "N" or respuesta == "n"):

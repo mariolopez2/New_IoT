@@ -160,16 +160,21 @@ def SistemaWeb():
 
 
 
-def subirFotos():
-	draw.rectangle((0,0,ancho,largo), outline=0, fill=0)
-	disp.clear()
-	print("SUBIENDO FOTOS")
-	printd("SUBIENDO ARCHIVOS",32)
-	disp.image(image) 
-	disp.display()
-	cmd = "mv /home/pi/New_IoT/*!(iot.py) /home/pi/New_IoT/Fotos_IOT/"
-	os.system("gphoto2 --get-all-files")
-	os.system(cmd)
+def subirFotos(metodo):
+	if metodo == 1:
+		draw.rectangle((0,0,ancho,largo), outline=0, fill=0)
+		disp.clear()
+		printd("SUBIENDO ARCHIVOS",32)
+		disp.image(image) 
+		disp.display()
+		cmd = "mv /home/pi/New_IoT/*!(iot.py) /home/pi/New_IoT/Fotos_IOT/"
+		os.system("gphoto2 --get-all-files")
+		os.system(cmd)
+	elif metodo == 2:
+		#Metodo web
+	else:
+		#En prueba
+	
 
 
 
