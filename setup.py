@@ -123,26 +123,26 @@ def Iniciar():
                     print("\nOpcion no valida, intenta de nuevo.")
 
 def configurarArchivos():
-    resp_valida = False
+    respuesta_valida = False
     os.system("sudo systemctl enable ssh")
     os.system("sudo systemctl start ssh")
     os.system("sudo mkdir /home/pi/Sharepoint")
     os.system("sudo mv -rf /home/pi/New_IoT/html/ /var/www/html/")
-    while(resp_valida == False):
+    while(respuesta_valida == False):
         print("La siguiente configuración necesita de su atención. ¿Desea continuar? S/N: ")
         resp = input()
         if(resp == "S" or resp == "s"):
-            resp_valida = True
+            respuesta_valida = True
             try:
                 os.system("rclone config")
                 print("Hemos terminado de configurar el dispositivo, revisa su correcto funcionamiento.")
             except:
                 print("No se termino de configurar el dispositivo, revisa su correcto funcionamiento")
         elif(resp == "N" or resp == "n"):
-            resp_valida = True
+            respuesta_valida = True
             print("\n Para terminar de configurar el Sharepoint es necesario ejecutar el siguiente comando: rclone config \n Puede consultar mas información en /home/pi/New_IoT/Configurar_Sharepoint.pdf")
         else:
-            resp_valida = False
+            respuesta_valida = False
             print("Respuesta no valida\nIntenta de nuevo o presiona Ctrl + c para cancelar.")
 
 
